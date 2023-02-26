@@ -1,0 +1,411 @@
+port: 8880 # HTTP 端口
+socks-port: 8808 # SOCKS5 端口
+redir-port: 8088 # Linux 及 macOS 的 redir 端口
+allow-lan: true # 内网代理 true/false
+mode: Rule # Rule / Global / Direct (默认为 Rule 模式) #clash工作模式（rule/global/direct,meta暂不支持script）
+log-level: info # 设置输出日志的等级 (默认为 info)
+external-controller: 127.0.0.1:8070 #控制器监听地址
+experimental:
+  ignore-resolve-fail: true # 忽略 DNS 解析失败，默认值为true
+profile:                   #缓存设置(文件位置./cache.db)
+  store-selected: false    #节点状态记忆（若不同配置有同代理名称,设置值共享）
+  store-fake-ip: true      #fake-ip缓存
+#  全局TLS指纹,优先低于proxy内的 client-fingerprint
+#  可选："chrome","firefox","safari","ios","random","none" options.
+#  Utls is currently support TLS transport in TCP/grpc/WS/HTTP for VLESS/Vmess and trojan.
+global-client-fingerprint: chrome
+dns:
+  enable: true  #DNS开关(false/true)
+  listen: 0.0.0.0:53 #DNS监听地址
+  ipv6: false #IP6解析开关；如果为false，将返回ip6结果为空
+  enhanced-mode: fake-ip  #DNS模式(redir-host/fake-ip)
+  fake-ip-range: 198.18.0.1/16
+  default-nameserver: #解析非IP的dns用的dns服务器,只支持纯IP
+  - 223.5.5.5
+  - 223.6.6.6
+  nameserver:
+  - 223.5.5.5
+  - 223.6.6.6
+  nameserver-policy:  #指定域名使用自定义DNS解析
+    geosite:cn:
+    - 223.5.5.5
+    - 223.6.6.6
+#   +.internal.crop.com: 114.114.114.114
+#  "geosite:cn": https://doh.pub/dns-query
+  fallback:
+  # 部分来自 https://www.wizcase.com/blog/best-free-public-dns-servers/
+    #- 156.154.71.5 # Neustar DNS
+    #- 156.154.70.5 # Neustar DNS
+    #- 64.6.65.6 # Verisign Public DNS
+    - https://dns.google/dns-query
+    - https://8.8.8.8/dns-query
+    - https://8.8.4.4/dns-query
+    - https://1.1.1.1/dns-query
+    - https://cloudflare-dns.com/dns-query
+
+  fallback-filter:
+    geoip: true #通过解析的 ip 所属地进行分流
+    geoip-code: CN
+    ipcidr:
+    - 240.0.0.0/4
+    - 127.0.0.1/8
+    - 0.0.0.0/32
+    domain:
+    - +.google.com
+    - +.facebook.com
+    - +.twitter.com
+    - +.youtube.com
+    - +.google.cn
+    - +.googleapis.cn
+    - +.googleapis.com
+    - +.googlevideo.com
+    - +.gvt1.com
+    - +.gmail.com
+    - +.instagram.com
+    - +.github.com
+    - +.github.io
+    - +.v2rayssr.com
+    - +.wikipedia.org
+# 目标端口是8888时，直接访问不走代理
+# - SRC-PORT,8888,DIRECT
+# 真实可用的节点
+proxies: 
+# █████████████████ 个人代理服务器配置开始 █████████████████
+# Trojan
+- {name: 自有代理-1,country: 🇺🇸US, server: 域名, port: 99, type: trojan, password: 密码, client-fingerprint: chrome}
+- {name: 自有代理-2,country: 🇺🇸US, server: 域名, port: 99, type: trojan, password: 密码, client-fingerprint: chrome}
+- {name: 自有代理-3,country: 🇺🇸US, server: 域名, port: 99, type: trojan, password: 密码, client-fingerprint: chrome}
+
+# █████████████████ 搜罗服务器配置开始 █████████████████
+#- https://github.com/ripaojiedian/freenode/blob/main/clash
+
+# █████████████████ 代理服务器配置结束 █████████████████
+#策略组有：延迟最低、🎏公共转移、手动选择、🍀公共随机 四种模式。 select/urltest/fallback/load-balance
+#延迟最低，顾名思义，每隔一段时间进行延迟测试，选择延迟最低的节点。
+#🎏公共转移，每次都选组内第一个节点，无法使用再换到第二个，依次类推。
+#手动选择，顾名思义，没有特殊功能。
+#🍀公共随机，每个节点都用用，由于很多机场都有连接数的限制，因此实际使用较少。
+# 测速替换方案  参见 https://imldy.cn/posts/99d42f85/
+# https://www.google.com/generate_204
+#策略组
+# 节点高级筛选请参考 https://github.com/MetaCubeX/Clash.Meta/pull/321
+# █████████████████ 导入配置节点开始 █████████████████
+proxy-providers:
+  🚌 代理池_1:
+    type: http
+    path: ./profiles/proxies/clash_1.yaml
+    url: https://预留地址.net/link/
+    interval: 2160
+    #exclude-filter: cn|CN|中国|🇨🇳|ru|RU|俄罗斯|🇷🇺|tw|TW|台湾|🇹🇼|sg|SG|新加坡|🇸🇬|gb|GB|🇬🇧|au|AU|🇦🇺|ca|CA|🇨🇦|jp|JP|日本|🇯🇵
+    exclude-type: ss|SS|ssr|SSR|http
+    filter: us|US|美国|🇺🇸|hk|HK|香港|🇭🇰|kr|KR|韩国|🇰🇷
+    health-check:
+      enable: true
+      url: https://www.google.com/generate_204
+      interval: 99999
+  🚌 代理池_2:
+    type: http
+    path: ./profiles/proxies/clash_2.yaml
+    url: https://预留地址.net/link/
+    interval: 2160
+    #exclude-filter: cn|CN|中国|🇨🇳|ru|RU|俄罗斯|🇷🇺|tw|TW|台湾|🇹🇼|sg|SG|新加坡|🇸🇬|gb|GB|🇬🇧|au|AU|🇦🇺|ca|CA|🇨🇦|jp|JP|日本|🇯🇵
+    exclude-type: ss|SS|ssr|SSR|http
+    filter: us|US|美国|🇺🇸|hk|HK|香港|🇭🇰|kr|KR|韩国|🇰🇷
+    health-check:
+      enable: true
+      url: https://www.google.com/generate_204
+      interval: 99999
+  🚌 代理池_3:
+    type: http
+    path: ./profiles/proxies/clash_3.yaml
+    url: https://预留地址.net/link/
+    interval: 2160
+    #exclude-filter: cn|CN|中国|🇨🇳|ru|RU|俄罗斯|🇷🇺|tw|TW|台湾|🇹🇼|sg|SG|新加坡|🇸🇬|gb|GB|🇬🇧|au|AU|🇦🇺|ca|CA|🇨🇦|jp|JP|日本|🇯🇵
+    exclude-type: ss|SS|ssr|SSR|http
+    filter: us|US|美国|🇺🇸|hk|HK|香港|🇭🇰|kr|KR|韩国|🇰🇷
+    health-check:
+      enable: true
+      url: https://www.google.com/generate_204
+      interval: 99999
+  🚌 代理池_4:
+    type: http
+    path: ./profiles/proxies/clash_4.yaml
+    url: https://预留地址.net/link/
+    interval: 2160
+    #exclude-filter: cn|CN|中国|🇨🇳|ru|RU|俄罗斯|🇷🇺|tw|TW|台湾|🇹🇼|sg|SG|新加坡|🇸🇬|gb|GB|🇬🇧|au|AU|🇦🇺|ca|CA|🇨🇦|jp|JP|日本|🇯🇵
+    exclude-type: ss|SS|ssr|SSR|http
+    filter: us|US|美国|🇺🇸|hk|HK|香港|🇭🇰|kr|KR|韩国|🇰🇷
+    health-check:
+      enable: true
+      url: https://www.google.com/generate_204
+      interval: 99999
+  🚌 代理池_5:
+    type: http
+    path: ./profiles/proxies/clash_5.yaml
+    url: https://预留地址.net/link/
+    interval: 2160
+    #exclude-filter: cn|CN|中国|🇨🇳|ru|RU|俄罗斯|🇷🇺|tw|TW|台湾|🇹🇼|sg|SG|新加坡|🇸🇬|gb|GB|🇬🇧|au|AU|🇦🇺|ca|CA|🇨🇦|jp|JP|日本|🇯🇵
+    exclude-type: ss|SS|ssr|SSR|http
+    filter: us|US|美国|🇺🇸|hk|HK|香港|🇭🇰|kr|KR|韩国|🇰🇷
+    health-check:
+      enable: true
+      url: https://www.google.com/generate_204
+      interval: 99999
+  🚌 代理池_6:
+    type: http
+    path: ./profiles/proxies/clash_6.yaml
+    url: https://预留地址.net/link/
+    interval: 2160
+    #exclude-filter: cn|CN|中国|🇨🇳|ru|RU|俄罗斯|🇷🇺|tw|TW|台湾|🇹🇼|sg|SG|新加坡|🇸🇬|gb|GB|🇬🇧|au|AU|🇦🇺|ca|CA|🇨🇦|jp|JP|日本|🇯🇵
+    exclude-type: ss|SS|ssr|SSR|http
+    filter: us|US|美国|🇺🇸|hk|HK|香港|🇭🇰|kr|KR|韩国|🇰🇷
+    health-check:
+      enable: true
+      url: https://www.google.com/generate_204
+      interval: 99999
+  🚌 代理池_7:
+    type: http
+    path: ./profiles/proxies/clash_7.yaml
+    url: https://预留地址.net/link/
+    interval: 2160
+    #exclude-filter: cn|CN|中国|🇨🇳|ru|RU|俄罗斯|🇷🇺|tw|TW|台湾|🇹🇼|sg|SG|新加坡|🇸🇬|gb|GB|🇬🇧|au|AU|🇦🇺|ca|CA|🇨🇦|jp|JP|日本|🇯🇵
+    exclude-type: ss|SS|ssr|SSR|http
+    filter: us|US|美国|🇺🇸|hk|HK|香港|🇭🇰|kr|KR|韩国|🇰🇷
+    health-check:
+      enable: true
+      url: https://www.google.com/generate_204
+      interval: 99999
+  🚌 代理池_8:
+    type: http
+    path: ./profiles/proxies/clash_8.yaml
+    url: https://预留地址.net/link/
+    interval: 2160
+    #exclude-filter: cn|CN|中国|🇨🇳|ru|RU|俄罗斯|🇷🇺|tw|TW|台湾|🇹🇼|sg|SG|新加坡|🇸🇬|gb|GB|🇬🇧|au|AU|🇦🇺|ca|CA|🇨🇦|jp|JP|日本|🇯🇵
+    exclude-type: ss|SS|ssr|SSR|http
+    filter: us|US|美国|🇺🇸|hk|HK|香港|🇭🇰|kr|KR|韩国|🇰🇷
+    health-check:
+      enable: true
+      url: https://www.google.com/generate_204
+      interval: 99999
+  🚌 代理池_9:
+    type: http
+    path: ./profiles/proxies/clash_9.yaml
+    url: https://预留地址.net/link/
+    interval: 2160
+    #exclude-filter: cn|CN|中国|🇨🇳|ru|RU|俄罗斯|🇷🇺|tw|TW|台湾|🇹🇼|sg|SG|新加坡|🇸🇬|gb|GB|🇬🇧|au|AU|🇦🇺|ca|CA|🇨🇦|jp|JP|日本|🇯🇵
+    exclude-type: ss|SS|ssr|SSR|http
+    filter: us|US|美国|🇺🇸|hk|HK|香港|🇭🇰|kr|KR|韩国|🇰🇷
+    health-check:
+      enable: true
+      url: https://www.google.com/generate_204
+      interval: 99999
+# █████████████████ 导入配置节点结束 █████████████████
+
+proxy-groups:
+
+# █████████████████ 优选节点配置 1-2 █████████████████
+
+# 隐私选择 
+- name: 🧩隐私选择
+  type: select
+  proxies: 
+    - 🍄公共测速
+    - 自有代理-1
+    - 自有代理-2
+    - 自有代理-3
+
+# 人工选择  
+- name: 🛟公共选择
+  type: select
+  proxies:
+    - 🍄公共测速
+  use:
+    - 🚌 代理池_1
+    - 🚌 代理池_2
+    - 🚌 代理池_3
+    - 🚌 代理池_4
+    - 🚌 代理池_5
+    - 🚌 代理池_6
+    - 🚌 代理池_7
+    - 🚌 代理池_8
+    - 🚌 代理池_9
+# █████████████████ 代理组"节点"选择配置 █████████████████
+- name: 🍄公共测速
+  type: url-test
+  interval: 300
+  tolerance: 9
+  url: https://www.google.com/generate_204
+  use:
+    - 🚌 代理池_1
+    - 🚌 代理池_2
+    - 🚌 代理池_3
+    - 🚌 代理池_4
+    - 🚌 代理池_5
+    - 🚌 代理池_6
+    - 🚌 代理池_7
+    - 🚌 代理池_8
+    - 🚌 代理池_9
+# █████████████████ 代理组"节点"选择配置 █████████████████
+# 规则之外 漏网之鱼
+- name: 🐟漏网之鱼
+  type: select
+  proxies:
+    - DIRECT
+    - 🛟公共选择
+    - DIRECT
+
+- name: 🛑 广告拦截
+  type: select
+  proxies:
+    - REJECT
+    - DIRECT
+    - 🛟公共选择
+
+- name: Ⓜ️ OneDrive
+  type: select
+  proxies:
+    - DIRECT
+    - 🧩隐私选择
+    - 🛟公共选择
+    - 自有代理-1
+    - 自有代理-2
+    - 自有代理-3
+    - DIRECT
+
+- name: PROXY
+  type: select
+  proxies:
+    - 🧩隐私选择
+    - 🛟公共选择
+    - 自有代理-1
+    - 自有代理-2
+    - 自有代理-3
+    - DIRECT
+
+# 在线更新的规则集 interval: 86400 每日更新
+rule-providers:
+  ChinaCloudServiceProvider:   # 直连-中国各类云服务商IP.
+    type: http
+    behavior: classical
+    url: "https://ghproxy.net/https://raw.githubusercontent.com/RealSeek/Clash_Rule_DIY/master/DIRECT/ChinaCloudServiceProvider.yaml"
+    path: ./profiles/ruleset/ChinaCloudServiceProvider.yaml
+    interval: 86400
+
+  ChinaDomain: # 直连-中国常见域名
+    type: http
+    behavior: classical
+    url: "https://ghproxy.net/https://raw.githubusercontent.com/RealSeek/Clash_Rule_DIY/master/DIRECT/ChinaDomain.yaml"
+    path: ./profiles/ruleset/ChinaDomain.yaml
+    interval: 86400
+
+  ChinaIP: # 直连-中国IP
+    type: http
+    behavior: classical
+    url: "https://ghproxy.net/https://raw.githubusercontent.com/RealSeek/Clash_Rule_DIY/master/DIRECT/ChinaIP.yaml"
+    path: ./profiles/ruleset/ChinaIP.yaml
+    interval: 86400
+
+  ChinaVideo: # 直连-中国媒体列表
+    type: http
+    behavior: classical
+    url: "https://ghproxy.net/https://raw.githubusercontent.com/RealSeek/Clash_Rule_DIY/master/DIRECT/ChinaVideo.yaml"
+    path: ./profiles/ruleset/ChinaVideo.yaml
+    interval: 86400
+
+  DownloadClient: # 直连-中国常用下载客户端
+    type: http
+    behavior: classical
+    url: "https://ghproxy.net/https://raw.githubusercontent.com/RealSeek/Clash_Rule_DIY/master/DIRECT/DownloadClient.yaml"
+    path: ./profiles/ruleset/DownloadClient.yaml
+    interval: 86400
+
+  GoogleCN: # 直连-中国可以直连的Google地址
+    type: http
+    behavior: classical
+    url: "https://ghproxy.net/https://raw.githubusercontent.com/RealSeek/Clash_Rule_DIY/master/DIRECT/GoogleCN.yaml"
+    path: ./profiles/ruleset/GoogleCN.yaml
+    interval: 86400
+
+  LocalAreaNetwork: # 直连-局域网地址
+    type: http
+    behavior: classical
+    url: "https://ghproxy.net/https://raw.githubusercontent.com/RealSeek/Clash_Rule_DIY/master/DIRECT/LocalAreaNetwork.yaml"
+    path: ./profiles/ruleset/LocalAreaNetwork.yaml
+    interval: 86400
+
+  Netflix:   # 代理-奈菲.
+    type: http
+    behavior: classical
+    url: "https://ghproxy.net/https://raw.githubusercontent.com/RealSeek/Clash_Rule_DIY/master/PROXY/Netflix.yaml"
+    path: ./profiles/ruleset/Netflix.yaml
+    interval: 86400
+
+  OneDrive:   # 代理-OneDrive.
+    type: http
+    behavior: classical
+    url: "https://ghproxy.net/https://raw.githubusercontent.com/RealSeek/Clash_Rule_DIY/master/PROXY/OneDrive.yaml"
+    path: ./profiles/ruleset/OneDrive.yaml
+    interval: 86400
+
+  ProxyGWFList:   # 代理-GWFList.
+    type: http
+    behavior: classical
+    url: "https://ghproxy.net/https://raw.githubusercontent.com/RealSeek/Clash_Rule_DIY/master/PROXY/ProxyGWFList.yaml"
+    path: ./profiles/ruleset/ProxyGWFList.yaml
+    interval: 86400
+
+  ProxyVideo:   # 代理-国外媒体列表.
+    type: http
+    behavior: classical
+    url: "https://ghproxy.net/https://raw.githubusercontent.com/RealSeek/Clash_Rule_DIY/master/PROXY/ProxyVideo.yaml"
+    path: ./profiles/ruleset/ProxyVideo.yaml
+    interval: 86400
+
+  Telegram:   # 代理-Telegram.
+    type: http
+    behavior: classical
+    url: "https://ghproxy.net/https://raw.githubusercontent.com/RealSeek/Clash_Rule_DIY/master/PROXY/Telegram.yaml"
+    path: ./profiles/ruleset/Telegram.yaml
+    interval: 86400
+
+  BanAD:   # 屏蔽-广告联盟.
+    type: http
+    behavior: classical
+    url: "https://ghproxy.net/https://raw.githubusercontent.com/RealSeek/Clash_Rule_DIY/master/REJECT/BanAD.yaml"
+    path: ./profiles/ruleset/BanAD.yaml
+    interval: 86400
+
+  BanEasyListChina: # 屏蔽广告
+    type: http
+    behavior: classical
+    url: "https://ghproxy.net/https://raw.githubusercontent.com/RealSeek/Clash_Rule_DIY/master/REJECT/BanEasyListChina.yaml"
+    path: ./profiles/ruleset/BanEasyListChina.yaml
+    interval: 86400
+
+  ChinaApp: # 需要直连的常见软件列表
+    type: http
+    behavior: classical
+    url: "https://ghproxy.net/https://raw.githubusercontent.com/RealSeek/Clash_Rule_DIY/master/DIRECT/ChinaApp.yaml"
+    path: ./profiles/ruleset/ChinaApp.yaml
+    interval: 86400
+
+prepend-rules: # 规则由上往下遍历，如上面规则已经命中，则不再往下处理
+  - RULE-SET,ChinaApp,DIRECT
+  - DOMAIN,clash.razord.top,DIRECT
+  - DOMAIN,yacd.haishan.me,DIRECT
+  - RULE-SET,ChinaCloudServiceProvider,DIRECT
+  - RULE-SET,ChinaDomain,DIRECT
+  - RULE-SET,ChinaIP,DIRECT
+  - RULE-SET,ChinaVideo,DIRECT
+  - RULE-SET,DownloadClient,DIRECT
+  - RULE-SET,GoogleCN,DIRECT
+  - RULE-SET,LocalAreaNetwork,DIRECT
+  - RULE-SET,BanAD,🛑 广告拦截
+  - RULE-SET,Netflix,PROXY
+  - RULE-SET,OneDrive,Ⓜ️ OneDrive
+  - RULE-SET,ProxyGWFList,PROXY
+  - RULE-SET,ProxyVideo,PROXY
+  - RULE-SET,Telegram,PROXY
+# █████████████████ 最终规则 █████████████████
+  - GEOIP,CN,DIRECT
+  - MATCH,🐟漏网之鱼 #漏网之鱼
